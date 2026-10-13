@@ -3,330 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flappy Mobile</title>
+    <title>Game Hub & Wheel</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: #121214; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+
+        /* SCHERMATA LOGIN */
+        #auth-screen {
+            background: #1e1e24;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 360px;
         }
-        body {
-            background-color: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            touch-action: manipulation;
+        #auth-screen h2 { margin-bottom: 20px; color: #00d26a; }
+        #auth-screen input {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border-radius: 8px; border: 1px solid #333;
+            background: #2a2a32; color: #fff; font-size: 16px; text-align: center;
         }
-        canvas {
-            background: #70c5ce;
-            display: block;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            cursor: pointer;
+        #auth-screen button, .btn {
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            background: #00d26a; color: #000; font-weight: bold; font-size: 16px; cursor: pointer;
+        }
+        #auth-screen button:hover, .btn:hover { background: #00b85c; }
+
+        /* DASHBOARD PRINCIPALE */
+        #dashboard {
+            display: none; width: 100%; max-width: 1200px; height: 100vh;
+            grid-template-columns: 280px 1fr 280px; gap: 15px; padding: 15px;
+        }
+
+        .panel {
+            background: #1e1e24; border-radius: 12px; padding: 15px;
+            display: flex; flex-direction: column; gap: 15px; border: 1px solid #2a2a32;
+        }
+
+        /* PANNELLO SINISTRA: GIOCHI */
+        .game-card {
+            background: #2a2a32; padding: 15px; border-radius: 10px;
+            cursor: pointer; transition: 0.2s; border: 2px solid transparent;
+        }
+        .game-card:hover { border-color: #00d26a; transform: translateY(-2px); }
+        .game-card h4 { color: #f8e71c; margin-bottom: 5px; }
+
+        /* PANNELLO CENTRO: RUOTA */
+        .wheel-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative;
+        }
+        #wheel-canvas { border-radius: 50%; box-shadow: 0 0 20px rgba(0,210,106,0.2); }
+        .pointer {
+            width: 0; height: 0; 
+            border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 25px solid #ff4757; position: absolute; top: 15%; z-index: 10;
+        }
+        #spin-btn { margin-top: 20px; width: 200px; }
+        .user-info { display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px; font-weight: bold; }
+
+        /* PANNELLO DESTRA: CLASSIFICA */
+        .leaderboard-list { list-style: none; margin-top: 10px; }
+        .leaderboard-item {
+            display: flex; justify-content: space-between; padding: 10px;
+            background: #2a2a32; margin-bottom: 8px; border-radius: 6px; font-size: 14px;
+        }
+
+        /* MODALE GIOCO FLAPPY */
+        #game-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.9); justify-content: center; align-items: center; flex-direction: column; z-index: 100;
+        }
+        #gameCanvas { background: #70c5ce; border-radius: 8px; }
+        .close-btn { position: absolute; top: 20px; right: 20px; background: #ff4757; color: #fff; width: auto; padding: 8px 16px; }
+
+        /* RESPONSIVE PER MOBILE */
+        @media (max-width: 900px) {
+            #dashboard { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
+            .pointer { top: 5%; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="gameCanvas"></canvas>
+    <!-- SCHERMATA REGISTRAZIONE -->
+    <div id="auth-screen">
+        <h2>BENVENUTO</h2>
+        <p style="margin-bottom: 15px; color: #aaa; font-size: 14px;">Inserisci il tuo nome per giocare</p>
+        <input type="text" id="username-input" placeholder="Il tuo Nickname..." maxlength="12">
+        <button onclick="registerUser()">ENTRA NELL'HUB</button>
+    </div>
+
+    <!-- DASHBOARD HUB -->
+    <div id="dashboard">
+        <!-- SINISTRA: SEZIONE GIOCHI -->
+        <div class="panel">
+            <h3>🎮 Giochi</h3>
+            <div class="game-card" onclick="openGame()">
+                <h4>🐤 Flappy Bird</h4>
+                <p style="font-size: 12px; color: #aaa;">Schiva i tubi e fai il record!</p>
+            </div>
+            <div class="game-card" style="opacity: 0.5; cursor: not-allowed;">
+                <h4>🔒 Prossimamente</h4>
+                <p style="font-size: 12px; color: #aaa;">Nuovo gioco in arrivo...</p>
+            </div>
+        </div>
+
+        <!-- CENTRO: RUOTA DELLA FORTUNA -->
+        <div class="panel wheel-container">
+            <div class="user-info">
+                <span id="display-username">Player</span>
+                <span style="color: #f8e71c;">🪙 Monete: <span id="coin-count">0</span></span>
+            </div>
+            
+            <div class="pointer"></div>
+            <canvas id="wheel-canvas" width="320" height="320"></canvas>
+            <button id="spin-btn" class="btn" onclick="spinWheel()">GIRA LA RUOTA</button>
+            <p id="wheel-msg" style="margin-top: 10px; font-weight: bold; color: #00d26a;"></p>
+        </div>
+
+        <!-- DESTRA: CLASSIFICA -->
+        <div class="panel">
+            <h3>🏆 Classifica Flappy</h3>
+            <ul class="leaderboard-list" id="leaderboard">
+                <!-- Generato via JS -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- MODALE DEL GIOCO FLAPPY BIRD -->
+    <div id="game-modal">
+        <button class="btn close-btn" onclick="closeGame()">❌ Chiudi</button>
+        <canvas id="gameCanvas" width="360" height="540"></canvas>
+    </div>
 
     <script>
+        // --- GESTIONE UTENTE & STORAGE ---
+        let currentUser = localStorage.getItem("hub_username") || "";
+        let coins = parseInt(localStorage.getItem("hub_coins")) || 0;
+        let isSpinning = false;
+
+        const rewards = [
+            { label: "10 Monete", value: 10, color: "#ff4757" },
+            { label: "50 Monete", value: 50, color: "#2ed573" },
+            { label: "100 Monete", value: 100, color: "#ffa502" },
+            { label: "XP Boost", value: 0, color: "#1e90ff" },
+            { label: "0 Monete", value: 0, color: "#747d8c" },
+            { label: "500 Monete", value: 500, color: "#eccc68" }
+        ];
+
+        window.onload = () => {
+            if (currentUser) {
+                showDashboard();
+            }
+        };
+
+        function registerUser() {
+            const input = document.getElementById("username-input").value.trim();
+            if (input.length < 2) return alert("Inserisci un nome valido!");
+            currentUser = input;
+            localStorage.setItem("hub_username", currentUser);
+            showDashboard();
+        }
+
+        function showDashboard() {
+            document.getElementById("auth-screen").style.display = "none";
+            document.getElementById("dashboard").style.display = "grid";
+            document.getElementById("display-username").innerText = currentUser;
+            document.getElementById("coin-count").innerText = coins;
+            drawWheel();
+            updateLeaderboard();
+        }
+
+        // --- RUOTA DELLA FORTUNA ---
+        const wheelCanvas = document.getElementById("wheel-canvas");
+        const wCtx = wheelCanvas.getContext("2d");
+        let startAngle = 0;
+
+        function drawWheel() {
+            const numOptions = rewards.length;
+            const arcSize = (2 * Math.PI) / numOptions;
+
+            wCtx.clearRect(0, 0, 320, 320);
+
+            for (let i = 0; i < numOptions; i++) {
+                const angle = startAngle + i * arcSize;
+                wCtx.fillStyle = rewards[i].color;
+                wCtx.beginPath();
+                wCtx.arc(160, 160, 150, angle, angle + arcSize, false);
+                wCtx.lineTo(160, 160);
+                wCtx.fill();
+
+                // Testo
+                wCtx.save();
+                wCtx.fillStyle = "#fff";
+                wCtx.font = "bold 14px Arial";
+                wCtx.translate(160 + Math.cos(angle + arcSize / 2) * 100, 160 + Math.sin(angle + arcSize / 2) * 100);
+                wCtx.rotate(angle + arcSize / 2 + Math.PI / 2);
+                wCtx.fillText(rewards[i].label, -wCtx.measureText(rewards[i].label).width / 2, 0);
+                wCtx.restore();
+            }
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            document.getElementById("wheel-msg").innerText = "";
+
+            const spinTimeTotal = 3000;
+            const spinAngleStart = Math.random() * 10 + 10;
+            let currentRotation = 0;
+            let startTime = null;
+
+            function rotate(time) {
+                if (!startTime) startTime = time;
+                const progress = time - startTime;
+
+                if (progress < spinTimeTotal) {
+                    const degrees = spinAngleStart * Math.pow((spinTimeTotal - progress) / spinTimeTotal, 2);
+                    startAngle += (degrees * Math.PI) / 180;
+                    drawWheel();
+                    requestAnimationFrame(rotate);
+                } else {
+                    isSpinning = false;
+                    calculateReward();
+                }
+            }
+            requestAnimationFrame(rotate);
+        }
+
+        function calculateReward() {
+            const numOptions = rewards.length;
+            const arcSize = (2 * Math.PI) / numOptions;
+            let normalizedAngle = (3 * Math.PI / 2 - startAngle) % (2 * Math.PI);
+            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+
+            const index = Math.floor(normalizedAngle / arcSize);
+            const prize = rewards[index];
+
+            document.getElementById("wheel-msg").innerText = `Hai vinto: ${prize.label}!`;
+            if (prize.value > 0) {
+                coins += prize.value;
+                localStorage.setItem("hub_coins", coins);
+                document.getElementById("coin-count").innerText = coins;
+            }
+        }
+
+        // --- CLASSIFICA ---
+        function updateLeaderboard() {
+            const list = document.getElementById("leaderboard");
+            list.innerHTML = "";
+            let scores = JSON.parse(localStorage.getItem("flappy_scores")) || [];
+            
+            // Ordina dal punteggio più alto
+            scores.sort((a, b) => b.score - a.score);
+
+            if(scores.length === 0) {
+                list.innerHTML = "<li class='leaderboard-item'>Nessun record salvato</li>";
+                return;
+            }
+
+            scores.slice(0, 5).forEach((entry, i) => {
+                list.innerHTML += `
+                    <li class="leaderboard-item">
+                        <span>#${i + 1} ${entry.name}</span>
+                        <span style="color:#00d26a; font-weight:bold;">${entry.score} pt</span>
+                    </li>`;
+            });
+        }
+
+        function saveScore(newScore) {
+            let scores = JSON.parse(localStorage.getItem("flappy_scores")) || [];
+            scores.push({ name: currentUser, score: newScore });
+            localStorage.setItem("flappy_scores", JSON.stringify(scores));
+            updateLeaderboard();
+        }
+
+        // --- LOGICA GIOCO FLAPPY BIRD ---
+        const gameModal = document.getElementById("game-modal");
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        let gameAnimationId;
 
-        // Imposta dimensioni fisse ideali per smartphone (rapporto verticale)
-        canvas.width = 360;
-        canvas.height = 640;
+        function openGame() {
+            gameModal.style.display = "flex";
+            resetFlappy();
+            flappyLoop();
+        }
 
-        // Variabili di gioco
-        let frames = 0;
+        function closeGame() {
+            gameModal.style.display = "none";
+            cancelAnimationFrame(gameAnimationId);
+        }
+
+        // Variabili Flappy
+        let bird = { x: 50, y: 150, w: 24, h: 24, gravity: 0.35, jump: 5.5, speed: 0 };
+        let pipes = [];
         let score = 0;
-        let highScore = localStorage.getItem("flappyHighScore") || 0;
-        let state = { current: 0, getReady: 0, game: 1, over: 2 };
+        let frames = 0;
+        let gameOver = false;
 
-        const currentState = {
-            val: state.getReady
-        };
+        function resetFlappy() {
+            bird.y = 150; bird.speed = 0;
+            pipes = []; score = 0; frames = 0; gameOver = false;
+        }
 
-        // Gestione dei tocchi (Touch e Click)
-        function handleInput() {
-            switch(currentState.val) {
-                case state.getReady:
-                    currentState.val = state.game;
-                    bird.flap();
-                    break;
-                case state.game:
-                    bird.flap();
-                    break;
-                case state.over:
-                    pipes.reset();
-                    bird.speed = 0;
-                    bird.y = 150;
-                    score = 0;
-                    currentState.val = state.getReady;
-                    break;
+        function handleTap() {
+            if (gameOver) {
+                resetFlappy();
+            } else {
+                bird.speed = -bird.jump;
             }
         }
 
-        window.addEventListener("click", handleInput);
-        window.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            handleInput();
-        }, { passive: false });
+        window.addEventListener("keydown", (e) => { if(e.code === "Space") handleTap(); });
+        canvas.addEventListener("touchstart", (e) => { e.preventDefault(); handleTap(); });
+        canvas.addEventListener("mousedown", handleTap);
 
-        // L'uccellino
-        const bird = {
-            x: 50,
-            y: 150,
-            w: 34,
-            h: 24,
-            gravity: 0.25,
-            jump: 4.6,
-            speed: 0,
-            rotation: 0,
+        function flappyLoop() {
+            ctx.fillStyle = "#70c5ce"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            flap: function() {
-                this.speed = -this.jump;
-            },
+            if (!gameOver) {
+                bird.speed += bird.gravity;
+                bird.y += bird.speed;
 
-            update: function() {
-                // Se siamo in "Get Ready", l'uccellino fluttua leggermente
-                if(currentState.val === state.getReady) {
-                    this.y = 150 + Math.sin(frames * 0.1) * 5;
-                    this.rotation = 0;
-                } else {
-                    this.speed += this.gravity;
-                    this.y += this.speed;
-
-                    // Gestione rotazione
-                    if(this.speed >= this.jump) {
-                        this.rotation = 90 * Math.PI / 180;
-                    } else {
-                        this.rotation = -20 * Math.PI / 180;
-                    }
-
-                    // Collisione con il suolo
-                    if(this.y + this.h/2 >= canvas.height - 112) {
-                        this.y = canvas.height - 112 - this.h/2;
-                        if(currentState.val === state.game) {
-                            currentState.val = state.over;
-                            checkHighScore();
-                        }
-                    }
-
-                    // Evita che esca dallo schermo in alto
-                    if(this.y <= 0) {
-                        this.y = 0;
-                        this.speed = 0;
-                    }
-                }
-            },
-
-            draw: function() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-
-                // Disegno corpo uccellino (stile classico giallo/arancione)
-                ctx.fillStyle = "#f8e71c";
-                ctx.beginPath();
-                ctx.arc(0, 0, this.w / 2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "#000";
-                ctx.stroke();
-
-                // Becco
-                ctx.fillStyle = "#f5a623";
-                ctx.fillRect(this.w / 2 - 4, -4, 10, 8);
-                ctx.strokeRect(this.w / 2 - 4, -4, 10, 8);
-
-                // Occhio
-                ctx.fillStyle = "#fff";
-                ctx.beginPath();
-                ctx.arc(6, -6, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = "#000";
-                ctx.beginPath();
-                ctx.arc(8, -6, 2, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.restore();
-            }
-        };
-
-        // I Tubi
-        const pipes = {
-            position: [],
-            w: 53,
-            h: 400,
-            gap: 120,
-            dx: 2,
-
-            reset: function() {
-                this.position = [];
-            },
-
-            update: function() {
-                if(currentState.val !== state.game) return;
-
-                // Genera un nuovo tubo ogni 100 fotogrammi
-                if(frames % 100 === 0) {
-                    // Altezza casuale del tubo superiore
-                    let topPos = -Math.floor(Math.random() * 200) - 50;
-                    this.position.push({
-                        x: canvas.width,
-                        y: topPos
-                    });
+                if (frames % 90 === 0) {
+                    let topH = Math.floor(Math.random() * (canvas.height / 2)) + 30;
+                    pipes.push({ x: canvas.width, top: topH, gap: 110 });
                 }
 
-                for(let i = 0; i < this.position.length; i++) {
-                    let p = this.position[i];
-                    p.x -= this.dx;
+                for (let i = 0; i < pipes.length; i++) {
+                    let p = pipes[i];
+                    p.x -= 2;
 
-                    // Collisione tubo superiore
-                    let bottomPipeY = p.y + this.h + this.gap;
-                    
-                    if(bird.x + bird.w/2 > p.x && bird.x - bird.w/2 < p.x + this.w &&
-                       bird.y - bird.h/2 < p.y + this.h) {
-                        currentState.val = state.over;
-                        checkHighScore();
-                    }
-
-                    // Collisione tubo inferiore
-                    if(bird.x + bird.w/2 > p.x && bird.x - bird.w/2 < p.x + this.w &&
-                       bird.y + bird.h/2 > bottomPipeY) {
-                        currentState.val = state.over;
-                        checkHighScore();
-                    }
-
-                    // Rimuovi tubi fuori dallo schermo e aggiorna punteggio
-                    if(p.x + this.w <= 0) {
-                        this.position.shift();
-                        score++;
-                    }
-                }
-            },
-
-            draw: function() {
-                for(let i = 0; i < this.position.length; i++) {
-                    let p = this.position[i];
-                    let topY = p.y;
-                    let bottomY = p.y + this.h + this.gap;
-
-                    // Tubo Superiore
+                    // Tubi
                     ctx.fillStyle = "#73bf2e";
-                    ctx.fillRect(p.x, topY, this.w, this.h);
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = "#558022";
-                    ctx.strokeRect(p.x, topY, this.w, this.h);
-                    // Bordo inferiore del tubo superiore
-                    ctx.fillRect(p.x - 3, topY + this.h - 20, this.w + 6, 20);
-                    ctx.strokeRect(p.x - 3, topY + this.h - 20, this.w + 6, 20);
+                    ctx.fillRect(p.x, 0, 48, p.top);
+                    ctx.fillRect(p.x, p.top + p.gap, 48, canvas.height - p.top - p.gap);
 
-                    // Tubo Inferiore
-                    ctx.fillRect(p.x, bottomY, this.w, this.h);
-                    ctx.strokeRect(p.x, bottomY, this.w, this.h);
-                    // Bordo superiore del tubo inferiore
-                    ctx.fillRect(p.x - 3, bottomY, this.w + 6, 20);
-                    ctx.strokeRect(p.x - 3, bottomY, this.w + 6, 20);
+                    // Collisioni
+                    if (bird.x + bird.w > p.x && bird.x < p.x + 48 &&
+                       (bird.y < p.top || bird.y + bird.h > p.top + p.gap)) {
+                        triggerGameOver();
+                    }
+
+                    if (p.x === 48) score++;
                 }
+
+                pipes = pipes.filter(p => p.x > -50);
+
+                if (bird.y + bird.h >= canvas.height || bird.y <= 0) triggerGameOver();
             }
-        };
 
-        // Sfondo e Terra
-        const background = {
-            draw: function() {
-                // Sfondo cielo (già impostato nel canvas)
-                
-                // Disegno terreno scorrevole
-                ctx.fillStyle = "#ded895";
-                ctx.fillRect(0, canvas.height - 112, canvas.width, 112);
+            // Uccellino
+            ctx.fillStyle = "#f8e71c";
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.w/2, 0, Math.PI * 2);
+            ctx.fill();
 
-                // Linea superiore del terreno
-                ctx.fillStyle = "#73bf2e";
-                ctx.fillRect(0, canvas.height - 112, canvas.width, 16);
-                ctx.strokeStyle = "#558022";
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(0, canvas.height - 112);
-                ctx.lineTo(canvas.width, canvas.height - 112);
-                ctx.stroke();
+            // Punteggio
+            ctx.fillStyle = "#FFF"; ctx.font = "bold 30px Arial";
+            ctx.fillText(score, canvas.width / 2 - 10, 50);
+
+            if (gameOver) {
+                ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#FFF"; ctx.font = "bold 30px Arial"; ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
+                ctx.font = "20px Arial";
+                ctx.fillText("Tocca per Rigiocare", canvas.width / 2, canvas.height / 2 + 20);
+                ctx.textAlign = "left";
             }
-        };
-
-        // Interfaccia Grafica (UI)
-        const ui = {
-            draw: function() {
-                ctx.fillStyle = "#FFF";
-                ctx.strokeStyle = "#000";
-                ctx.lineWidth = 4;
-
-                if(currentState.val === state.getReady) {
-                    ctx.font = "bold 30px Arial";
-                    ctx.textAlign = "center";
-                    ctx.strokeText("TOCCA PER GIOCARE", canvas.width / 2, canvas.height / 2 - 50);
-                    ctx.fillText("TOCCA PER GIOCARE", canvas.width / 2, canvas.height / 2 - 50);
-                } else if(currentState.val === state.game) {
-                    ctx.font = "bold 40px Arial";
-                    ctx.textAlign = "center";
-                    ctx.strokeText(score, canvas.width / 2, 80);
-                    ctx.fillText(score, canvas.width / 2, 80);
-                } else if(currentState.val === state.over) {
-                    // Tabellone Game Over
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                    ctx.fillStyle = "#FFF";
-                    ctx.font = "bold 40px Arial";
-                    ctx.textAlign = "center";
-                    ctx.strokeText("GAME OVER", canvas.width / 2, canvas.height / 2 - 100);
-                    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 100);
-
-                    // Punteggio finale
-                    ctx.font = "bold 20px Arial";
-                    ctx.strokeText(`Punteggio: ${score}`, canvas.width / 2, canvas.height / 2 - 30);
-                    ctx.fillText(`Punteggio: ${score}`, canvas.width / 2, canvas.height / 2 - 30);
-
-                    ctx.strokeText(`Record: ${highScore}`, canvas.width / 2, canvas.height / 2 + 10);
-                    ctx.fillText(`Record: ${highScore}`, canvas.width / 2, canvas.height / 2 + 10);
-
-                    ctx.font = "bold 18px Arial";
-                    ctx.strokeText("Tocca per rigiocare", canvas.width / 2, canvas.height / 2 + 80);
-                    ctx.fillText("Tocca per rigiocare", canvas.width / 2, canvas.height / 2 + 80);
-                }
-            }
-        };
-
-        function checkHighScore() {
-            if(score > highScore) {
-                highScore = score;
-                localStorage.setItem("flappyHighScore", highScore);
-            }
-        }
-
-        // Loop di gioco principale
-        function loop() {
-            // Pulisci schermo
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            background.draw();
-            pipes.update();
-            pipes.draw();
-            bird.update();
-            bird.draw();
-            ui.draw();
 
             frames++;
-            requestAnimationFrame(loop);
+            gameAnimationId = requestAnimationFrame(flappyLoop);
         }
 
-        loop();
+        function triggerGameOver() {
+            if(!gameOver) {
+                gameOver = true;
+                saveScore(score);
+            }
+        }
     </script>
 </body>
 </html>
