@@ -10,19 +10,13 @@
 
         /* SCHERMATA LOGIN */
         #auth-screen {
-            background: #1e1e24;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 90%;
-            max-width: 360px;
+            background: #1e1e24; padding: 30px; border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 360px;
         }
         #auth-screen h2 { margin-bottom: 20px; color: #00d26a; }
         #auth-screen input {
-            width: 100%; padding: 12px; margin-bottom: 15px;
-            border-radius: 8px; border: 1px solid #333;
-            background: #2a2a32; color: #fff; font-size: 16px; text-align: center;
+            width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px;
+            border: 1px solid #333; background: #2a2a32; color: #fff; font-size: 16px; text-align: center;
         }
         #auth-screen button, .btn {
             width: 100%; padding: 12px; border: none; border-radius: 8px;
@@ -35,128 +29,139 @@
             display: none; width: 100%; max-width: 1200px; height: 100vh;
             grid-template-columns: 280px 1fr 280px; gap: 15px; padding: 15px;
         }
-
         .panel {
             background: #1e1e24; border-radius: 12px; padding: 15px;
-            display: flex; flex-direction: column; gap: 15px; border: 1px solid #2a2a32;
+            display: flex; flex-direction: column; gap: 15px; border: 1px solid #2a2a32; overflow-y: auto;
         }
 
-        /* PANNELLO SINISTRA: GIOCHI */
-        .game-card {
-            background: #2a2a32; padding: 15px; border-radius: 10px;
+        /* GIOCHI E SHOP CARDS */
+        .game-card, .shop-card {
+            background: #2a2a32; padding: 12px; border-radius: 10px;
             cursor: pointer; transition: 0.2s; border: 2px solid transparent;
         }
-        .game-card:hover { border-color: #00d26a; transform: translateY(-2px); }
-        .game-card h4 { color: #f8e71c; margin-bottom: 5px; }
+        .game-card:hover, .shop-card:hover { border-color: #00d26a; transform: translateY(-2px); }
+        .game-card h4 { color: #f8e71c; margin-bottom: 3px; }
 
-        /* PANNELLO CENTRO: RUOTA */
-        .wheel-container {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative;
-        }
+        /* RUOTA */
+        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         #wheel-canvas { border-radius: 50%; box-shadow: 0 0 20px rgba(0,210,106,0.2); }
         .pointer {
-            width: 0; height: 0; 
-            border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 25px solid #ff4757; position: absolute; top: 15%; z-index: 10;
+            width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
+            border-top: 20px solid #ff4757; position: absolute; top: 85px; z-index: 10;
         }
-        #spin-btn { margin-top: 20px; width: 200px; }
-        .user-info { display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px; font-weight: bold; }
+        #spin-btn { margin-top: 10px; width: 180px; }
+        .user-info { display: flex; justify-content: space-between; width: 100%; font-weight: bold; font-size: 15px; }
 
-        /* PANNELLO DESTRA: CLASSIFICA */
-        .leaderboard-list { list-style: none; margin-top: 10px; }
+        /* CLASSIFICA */
+        .leaderboard-list { list-style: none; margin-top: 5px; }
         .leaderboard-item {
-            display: flex; justify-content: space-between; padding: 10px;
-            background: #2a2a32; margin-bottom: 8px; border-radius: 6px; font-size: 14px;
+            display: flex; justify-content: space-between; padding: 8px 10px;
+            background: #2a2a32; margin-bottom: 6px; border-radius: 6px; font-size: 13px;
         }
 
-        /* MODALE GIOCO FLAPPY */
+        /* MODALE GIOCHI */
         #game-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.9); justify-content: center; align-items: center; flex-direction: column; z-index: 100;
         }
-        #gameCanvas { background: #70c5ce; border-radius: 8px; }
+        #gameCanvas { background: #111; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
         .close-btn { position: absolute; top: 20px; right: 20px; background: #ff4757; color: #fff; width: auto; padding: 8px 16px; }
 
-        /* RESPONSIVE PER MOBILE */
         @media (max-width: 900px) {
             #dashboard { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
-            .pointer { top: 5%; }
         }
     </style>
 </head>
 <body>
 
-    <!-- SCHERMATA REGISTRAZIONE -->
+    <!-- LOGIN -->
     <div id="auth-screen">
-        <h2>BENVENUTO</h2>
-        <p style="margin-bottom: 15px; color: #aaa; font-size: 14px;">Inserisci il tuo nome per giocare</p>
-        <input type="text" id="username-input" placeholder="Il tuo Nickname..." maxlength="12">
-        <button onclick="registerUser()">ENTRA NELL'HUB</button>
+        <h2>GAME HUB</h2>
+        <p style="margin-bottom: 15px; color: #aaa; font-size: 14px;">Inserisci il tuo nickname</p>
+        <input type="text" id="username-input" placeholder="Il tuo Nome..." maxlength="12">
+        <button onclick="registerUser()">ENTRA</button>
     </div>
 
-    <!-- DASHBOARD HUB -->
+    <!-- DASHBOARD -->
     <div id="dashboard">
         <!-- SINISTRA: SEZIONE GIOCHI -->
         <div class="panel">
-            <h3>🎮 Giochi</h3>
-            <div class="game-card" onclick="openGame()">
+            <h3>🎮 Sezione Giochi</h3>
+            <div class="game-card" onclick="openFlappy()">
                 <h4>🐤 Flappy Bird</h4>
-                <p style="font-size: 12px; color: #aaa;">Schiva i tubi e fai il record!</p>
+                <p style="font-size: 12px; color: #aaa;">Schiva i tubi verdi.</p>
             </div>
-            <div class="game-card" style="opacity: 0.5; cursor: not-allowed;">
-                <h4>🔒 Prossimamente</h4>
-                <p style="font-size: 12px; color: #aaa;">Nuovo gioco in arrivo...</p>
+            <div class="game-card" onclick="openSpaceDodge()">
+                <h4>🚀 Space Dodge</h4>
+                <p style="font-size: 12px; color: #aaa;">Schiva i meteoriti nello spazio.</p>
+            </div>
+            <div class="game-card" style="opacity: 0.4; cursor: not-allowed;">
+                <h4>🔒 Presto In Arrivo</h4>
+                <p style="font-size: 12px; color: #aaa;">Nuovo minigioco.</p>
             </div>
         </div>
 
-        <!-- CENTRO: RUOTA DELLA FORTUNA -->
+        <!-- CENTRO: RUOTA & SHOP -->
         <div class="panel wheel-container">
             <div class="user-info">
-                <span id="display-username">Player</span>
-                <span style="color: #f8e71c;">🪙 Monete: <span id="coin-count">0</span></span>
+                <span id="display-username" style="color: #00d26a;">Player</span>
+                <span style="color: #f8e71c;">🪙 <span id="coin-count">0</span></span>
             </div>
             
             <div class="pointer"></div>
-            <canvas id="wheel-canvas" width="320" height="320"></canvas>
+            <canvas id="wheel-canvas" width="240" height="240"></canvas>
             <button id="spin-btn" class="btn" onclick="spinWheel()">GIRA LA RUOTA</button>
-            <p id="wheel-msg" style="margin-top: 10px; font-weight: bold; color: #00d26a;"></p>
+            <p id="wheel-msg" style="font-weight: bold; color: #00d26a; min-height: 20px; font-size: 13px;"></p>
+
+            <hr style="width:100%; border: 0; border-top: 1px solid #2a2a32; margin: 5px 0;">
+            <h4 style="align-self: flex-start; font-size: 14px;">🛒 Shop Ricompense</h4>
+            <div style="width: 100%; display: flex; gap: 10px;">
+                <div class="shop-card" style="flex:1; text-align: center;" onclick="buyItem(100, 'Vita Extra')">
+                    <p style="font-size:13px; font-weight:bold;">❤️ Vita Extra</p>
+                    <p style="font-size:11px; color:#f8e71c;">100 Monete</p>
+                </div>
+                <div class="shop-card" style="flex:1; text-align: center;" onclick="buyItem(250, 'Skin Neon')">
+                    <p style="font-size:13px; font-weight:bold;">🎨 Skin Neon</p>
+                    <p style="font-size:11px; color:#f8e71c;">250 Monete</p>
+                </div>
+            </div>
         </div>
 
-        <!-- DESTRA: CLASSIFICA -->
+        <!-- DESTRA: CLASSIFICHE -->
         <div class="panel">
-            <h3>🏆 Classifica Flappy</h3>
-            <ul class="leaderboard-list" id="leaderboard">
-                <!-- Generato via JS -->
-            </ul>
+            <h3>🏆 Classifiche</h3>
+            
+            <p style="font-size: 12px; color: #f8e71c; margin-top:5px;">Flappy Bird</p>
+            <ul class="leaderboard-list" id="lb-flappy"></ul>
+
+            <p style="font-size: 12px; color: #1e90ff; margin-top:10px;">Space Dodge</p>
+            <ul class="leaderboard-list" id="lb-space"></ul>
         </div>
     </div>
 
-    <!-- MODALE DEL GIOCO FLAPPY BIRD -->
+    <!-- MODALE GIOCO -->
     <div id="game-modal">
         <button class="btn close-btn" onclick="closeGame()">❌ Chiudi</button>
         <canvas id="gameCanvas" width="360" height="540"></canvas>
     </div>
 
     <script>
-        // --- GESTIONE UTENTE & STORAGE ---
         let currentUser = localStorage.getItem("hub_username") || "";
         let coins = parseInt(localStorage.getItem("hub_coins")) || 0;
         let isSpinning = false;
+        let activeGame = null;
+        let animationId;
 
         const rewards = [
             { label: "10 Monete", value: 10, color: "#ff4757" },
             { label: "50 Monete", value: 50, color: "#2ed573" },
             { label: "100 Monete", value: 100, color: "#ffa502" },
-            { label: "XP Boost", value: 0, color: "#1e90ff" },
-            { label: "0 Monete", value: 0, color: "#747d8c" },
-            { label: "500 Monete", value: 500, color: "#eccc68" }
+            { label: "Sfortuna", value: 0, color: "#747d8c" },
+            { label: "200 Monete", value: 200, color: "#eccc68" },
+            { label: "500 Monete", value: 500, color: "#3742fa" }
         ];
 
-        window.onload = () => {
-            if (currentUser) {
-                showDashboard();
-            }
-        };
+        window.onload = () => { if (currentUser) showDashboard(); };
 
         function registerUser() {
             const input = document.getElementById("username-input").value.trim();
@@ -169,10 +174,10 @@
         function showDashboard() {
             document.getElementById("auth-screen").style.display = "none";
             document.getElementById("dashboard").style.display = "grid";
-            document.getElementById("display-username").innerText = currentUser;
+            document.getElementById("display-usernameinnerText" || "display-username").innerText = currentUser;
             document.getElementById("coin-count").innerText = coins;
             drawWheel();
-            updateLeaderboard();
+            updateLeaderboards();
         }
 
         // --- RUOTA DELLA FORTUNA ---
@@ -183,22 +188,20 @@
         function drawWheel() {
             const numOptions = rewards.length;
             const arcSize = (2 * Math.PI) / numOptions;
-
-            wCtx.clearRect(0, 0, 320, 320);
+            wCtx.clearRect(0, 0, 240, 240);
 
             for (let i = 0; i < numOptions; i++) {
                 const angle = startAngle + i * arcSize;
                 wCtx.fillStyle = rewards[i].color;
                 wCtx.beginPath();
-                wCtx.arc(160, 160, 150, angle, angle + arcSize, false);
-                wCtx.lineTo(160, 160);
+                wCtx.arc(120, 120, 110, angle, angle + arcSize, false);
+                wCtx.lineTo(120, 120);
                 wCtx.fill();
 
-                // Testo
                 wCtx.save();
                 wCtx.fillStyle = "#fff";
-                wCtx.font = "bold 14px Arial";
-                wCtx.translate(160 + Math.cos(angle + arcSize / 2) * 100, 160 + Math.sin(angle + arcSize / 2) * 100);
+                wCtx.font = "bold 11px Arial";
+                wCtx.translate(120 + Math.cos(angle + arcSize / 2) * 70, 120 + Math.sin(angle + arcSize / 2) * 70);
                 wCtx.rotate(angle + arcSize / 2 + Math.PI / 2);
                 wCtx.fillText(rewards[i].label, -wCtx.measureText(rewards[i].label).width / 2, 0);
                 wCtx.restore();
@@ -210,9 +213,8 @@
             isSpinning = true;
             document.getElementById("wheel-msg").innerText = "";
 
-            const spinTimeTotal = 3000;
-            const spinAngleStart = Math.random() * 10 + 10;
-            let currentRotation = 0;
+            const spinTimeTotal = 2500;
+            const spinAngleStart = Math.random() * 8 + 8;
             let startTime = null;
 
             function rotate(time) {
@@ -226,19 +228,19 @@
                     requestAnimationFrame(rotate);
                 } else {
                     isSpinning = false;
-                    calculateReward();
+                    calcReward();
                 }
             }
             requestAnimationFrame(rotate);
         }
 
-        function calculateReward() {
+        function calcReward() {
             const numOptions = rewards.length;
             const arcSize = (2 * Math.PI) / numOptions;
-            let normalizedAngle = (3 * Math.PI / 2 - startAngle) % (2 * Math.PI);
-            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+            let normAngle = (3 * Math.PI / 2 - startAngle) % (2 * Math.PI);
+            if (normAngle < 0) normAngle += 2 * Math.PI;
 
-            const index = Math.floor(normalizedAngle / arcSize);
+            const index = Math.floor(normAngle / arcSize);
             const prize = rewards[index];
 
             document.getElementById("wheel-msg").innerText = `Hai vinto: ${prize.label}!`;
@@ -249,140 +251,215 @@
             }
         }
 
-        // --- CLASSIFICA ---
-        function updateLeaderboard() {
-            const list = document.getElementById("leaderboard");
+        function buyItem(cost, name) {
+            if (coins >= cost) {
+                coins -= cost;
+                localStorage.setItem("hub_coins", coins);
+                document.getElementById("coin-count").innerText = coins;
+                alert(`Hai acquistato con successo: ${name}!`);
+            } else {
+                alert("Monete insufficienti! Gira la ruota per vincerne altre.");
+            }
+        }
+
+        // --- CLASSIFICHE ---
+        function updateLeaderboards() {
+            renderList("flappy_scores", "lb-flappy");
+            renderList("space_scores", "lb-space");
+        }
+
+        function renderList(storageKey, elementId) {
+            const list = document.getElementById(elementId);
             list.innerHTML = "";
-            let scores = JSON.parse(localStorage.getItem("flappy_scores")) || [];
-            
-            // Ordina dal punteggio più alto
+            let scores = JSON.parse(localStorage.getItem(storageKey)) || [];
             scores.sort((a, b) => b.score - a.score);
 
-            if(scores.length === 0) {
-                list.innerHTML = "<li class='leaderboard-item'>Nessun record salvato</li>";
+            if (scores.length === 0) {
+                list.innerHTML = "<li class='leaderboard-item'>Nessun record</li>";
                 return;
             }
 
-            scores.slice(0, 5).forEach((entry, i) => {
-                list.innerHTML += `
-                    <li class="leaderboard-item">
-                        <span>#${i + 1} ${entry.name}</span>
-                        <span style="color:#00d26a; font-weight:bold;">${entry.score} pt</span>
-                    </li>`;
+            scores.slice(0, 3).forEach((e, i) => {
+                list.innerHTML += `<li class='leaderboard-item'><span>#${i+1} ${e.name}</span><b style="color:#00d26a">${e.score}</b></li>`;
             });
         }
 
-        function saveScore(newScore) {
-            let scores = JSON.parse(localStorage.getItem("flappy_scores")) || [];
+        function saveGameScore(storageKey, newScore) {
+            let scores = JSON.parse(localStorage.getItem(storageKey)) || [];
             scores.push({ name: currentUser, score: newScore });
-            localStorage.setItem("flappy_scores", JSON.stringify(scores));
-            updateLeaderboard();
+            localStorage.setItem(storageKey, JSON.stringify(scores));
+            updateLeaderboards();
         }
 
-        // --- LOGICA GIOCO FLAPPY BIRD ---
-        const gameModal = document.getElementById("game-modal");
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        let gameAnimationId;
-
-        function openGame() {
-            gameModal.style.display = "flex";
-            resetFlappy();
-            flappyLoop();
-        }
-
+        // --- GESTIONE MODALE COMUNE ---
         function closeGame() {
-            gameModal.style.display = "none";
-            cancelAnimationFrame(gameAnimationId);
+            document.getElementById("game-modal").style.display = "none";
+            cancelAnimationFrame(animationId);
+            activeGame = null;
         }
 
-        // Variabili Flappy
-        let bird = { x: 50, y: 150, w: 24, h: 24, gravity: 0.35, jump: 5.5, speed: 0 };
-        let pipes = [];
-        let score = 0;
-        let frames = 0;
-        let gameOver = false;
+        // ================= GIOCO 1: FLAPPY BIRD =================
+        function openFlappy() {
+            document.getElementById("game-modal").style.display = "flex";
+            activeGame = "flappy";
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
 
-        function resetFlappy() {
-            bird.y = 150; bird.speed = 0;
-            pipes = []; score = 0; frames = 0; gameOver = false;
-        }
+            let bird = { x: 50, y: 150, w: 24, h: 24, gravity: 0.35, jump: 5.5, speed: 0 };
+            let pipes = [];
+            let score = 0;
+            let frames = 0;
+            let gameOver = false;
 
-        function handleTap() {
-            if (gameOver) {
-                resetFlappy();
-            } else {
-                bird.speed = -bird.jump;
-            }
-        }
+            function reset() { bird.y = 150; bird.speed = 0; pipes = []; score = 0; frames = 0; gameOver = false; }
 
-        window.addEventListener("keydown", (e) => { if(e.code === "Space") handleTap(); });
-        canvas.addEventListener("touchstart", (e) => { e.preventDefault(); handleTap(); });
-        canvas.addEventListener("mousedown", handleTap);
+            window.flappyTap = () => { if (gameOver) reset(); else bird.speed = -bird.jump; };
+            canvas.onclick = window.flappyTap;
 
-        function flappyLoop() {
-            ctx.fillStyle = "#70c5ce"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            function loop() {
+                if (activeGame !== "flappy") return;
+                ctx.fillStyle = "#70c5ce"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if (!gameOver) {
-                bird.speed += bird.gravity;
-                bird.y += bird.speed;
+                if (!gameOver) {
+                    bird.speed += bird.gravity;
+                    bird.y += bird.speed;
 
-                if (frames % 90 === 0) {
-                    let topH = Math.floor(Math.random() * (canvas.height / 2)) + 30;
-                    pipes.push({ x: canvas.width, top: topH, gap: 110 });
-                }
-
-                for (let i = 0; i < pipes.length; i++) {
-                    let p = pipes[i];
-                    p.x -= 2;
-
-                    // Tubi
-                    ctx.fillStyle = "#73bf2e";
-                    ctx.fillRect(p.x, 0, 48, p.top);
-                    ctx.fillRect(p.x, p.top + p.gap, 48, canvas.height - p.top - p.gap);
-
-                    // Collisioni
-                    if (bird.x + bird.w > p.x && bird.x < p.x + 48 &&
-                       (bird.y < p.top || bird.y + bird.h > p.top + p.gap)) {
-                        triggerGameOver();
+                    if (frames % 90 === 0) {
+                        let topH = Math.floor(Math.random() * 200) + 40;
+                        pipes.push({ x: canvas.width, top: topH, gap: 110 });
                     }
 
-                    if (p.x === 48) score++;
+                    for (let i = 0; i < pipes.length; i++) {
+                        let p = pipes[i];
+                        p.x -= 2;
+                        ctx.fillStyle = "#73bf2e";
+                        ctx.fillRect(p.x, 0, 48, p.top);
+                        ctx.fillRect(p.x, p.top + p.gap, 48, canvas.height - p.top - p.gap);
+
+                        if (bird.x + bird.w > p.x && bird.x < p.x + 48 &&
+                           (bird.y < p.top || bird.y + bird.h > p.top + p.gap)) {
+                            gameOver = true;
+                            saveGameScore("flappy_scores", score);
+                        }
+                        if (p.x === 48) score++;
+                    }
+                    pipes = pipes.filter(p => p.x > -50);
+                    if (bird.y + bird.h >= canvas.height || bird.y <= 0) {
+                        gameOver = true;
+                        saveGameScore("flappy_scores", score);
+                    }
                 }
 
-                pipes = pipes.filter(p => p.x > -50);
+                // Disegna Uccello
+                ctx.fillStyle = "#f8e71c";
+                ctx.beginPath(); ctx.arc(bird.x, bird.y, bird.w/2, 0, Math.PI * 2); ctx.fill();
 
-                if (bird.y + bird.h >= canvas.height || bird.y <= 0) triggerGameOver();
+                // Punteggio
+                ctx.fillStyle = "#FFF"; ctx.font = "bold 30px Arial";
+                ctx.fillText(score, canvas.width / 2 - 10, 50);
+
+                if (gameOver) {
+                    ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                    ctx.fillStyle = "#FFF"; ctx.font = "bold 26px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("GAME OVER", canvas.width/2, canvas.height/2 - 20);
+                    ctx.font = "16px Arial"; ctx.fillText("Tocca per rigiocare", canvas.width/2, canvas.height/2 + 20);
+                    ctx.textAlign = "left";
+                }
+
+                frames++;
+                animationId = requestAnimationFrame(loop);
             }
-
-            // Uccellino
-            ctx.fillStyle = "#f8e71c";
-            ctx.beginPath();
-            ctx.arc(bird.x, bird.y, bird.w/2, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Punteggio
-            ctx.fillStyle = "#FFF"; ctx.font = "bold 30px Arial";
-            ctx.fillText(score, canvas.width / 2 - 10, 50);
-
-            if (gameOver) {
-                ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#FFF"; ctx.font = "bold 30px Arial"; ctx.textAlign = "center";
-                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
-                ctx.font = "20px Arial";
-                ctx.fillText("Tocca per Rigiocare", canvas.width / 2, canvas.height / 2 + 20);
-                ctx.textAlign = "left";
-            }
-
-            frames++;
-            gameAnimationId = requestAnimationFrame(flappyLoop);
+            reset();
+            loop();
         }
 
-        function triggerGameOver() {
-            if(!gameOver) {
-                gameOver = true;
-                saveScore(score);
+        // ================= GIOCO 2: SPACE DODGE =================
+        function openSpaceDodge() {
+            document.getElementById("game-modal").style.display = "flex";
+            activeGame = "space";
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+
+            let player = { x: 160, y: 460, w: 30, h: 30, speed: 5 };
+            let meteors = [];
+            let score = 0;
+            let frames = 0;
+            let gameOver = false;
+            let moveLeft = false, moveRight = false;
+
+            function reset() { player.x = 160; meteors = []; score = 0; frames = 0; gameOver = false; }
+
+            // Controlli touch/mouse per muovere la navicella a destra e sinistra
+            canvas.onmousemove = (e) => {
+                let rect = canvas.getBoundingClientRect();
+                player.x = e.clientX - rect.left - player.w/2;
+            };
+            canvas.ontouchmove = (e) => {
+                let rect = canvas.getBoundingClientRect();
+                player.x = e.touches[0].clientX - rect.left - player.w/2;
+                e.preventDefault();
+            };
+            canvas.onclick = () => { if(gameOver) reset(); };
+
+            function loop() {
+                if (activeGame !== "space") return;
+                ctx.fillStyle = "#0b0b16"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                if (!gameOver) {
+                    if (frames % 40 === 0) {
+                        meteors.push({
+                            x: Math.random() * (canvas.width - 25),
+                            y: -30,
+                            size: Math.random() * 20 + 15,
+                            speed: Math.random() * 3 + 2
+                        });
+                    }
+
+                    for (let i = 0; i < meteors.length; i++) {
+                        let m = meteors[i];
+                        m.y += m.speed;
+
+                        // Collisione
+                        if (player.x < m.x + m.size && player.x + player.w > m.x &&
+                            player.y < m.y + m.size && player.y + player.h > m.y) {
+                            gameOver = true;
+                            saveGameScore("space_scores", score);
+                        }
+                    }
+
+                    meteors = meteors.filter(m => m.y < canvas.height + 50);
+                    score++;
+                }
+
+                // Disegna Navicella
+                ctx.fillStyle = "#00d26a";
+                ctx.fillRect(player.x, player.y, player.w, player.h);
+
+                // Disegna Meteoriti
+                ctx.fillStyle = "#ff4757";
+                for (let m of meteors) {
+                    ctx.beginPath();
+                    ctx.arc(m.x + m.size/2, m.y + m.size/2, m.size/2, 0, Math.PI*2);
+                    ctx.fill();
+                }
+
+                // Punteggio
+                ctx.fillStyle = "#FFF"; ctx.font = "bold 20px Arial";
+                ctx.fillText(`Punti: ${score}`, 15, 30);
+
+                if (gameOver) {
+                    ctx.fillStyle = "rgba(0,0,0,0.7)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                    ctx.fillStyle = "#FFF"; ctx.font = "bold 26px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("IMPATTO! GAME OVER", canvas.width/2, canvas.height/2 - 20);
+                    ctx.font = "16px Arial"; ctx.fillText("Tocca per ricominciare", canvas.width/2, canvas.height/2 + 20);
+                    ctx.textAlign = "left";
+                }
+
+                frames++;
+                animationId = requestAnimationFrame(loop);
             }
+            reset();
+            loop();
         }
     </script>
 </body>
